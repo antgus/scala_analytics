@@ -16,7 +16,3 @@ mi,variable
 ...
 
 The response consists of a list of dependencies sorted by Shannon's mutual information.
-
-== Technical constraints ==
-
-There are some constraints that you should respect. These are followed by some tips and ideas that you can choose to follow if you wish.
