@@ -1,19 +1,56 @@
 package services
 
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import scala.io.Source
 
 /**
   * dataMatrix format:
   * Each row is a data vector
   * Each column is a variable
-  * Expected varNames.size = dataMatrix(i).size, for all i.
+  *
+  * @throws RuntimeException if varNames.size != dataMatrix(i).size, for any i
   * @param varNames
-  * @param varDomain
-  * @param dataMatrix
+  * @param rawDataMatrix
   */
-class DataSet(val varNames: Array[String], val varDomain: Array[HashMap[String, Int]], val dataMatrix: ArrayBuffer[Array[Int]]) {
+class DataSet(val varNames: Array[String], val rawDataMatrix: ArrayBuffer[Array[String]]) {
   private val mapVarNameToIndex = varNames.zipWithIndex.toMap
+
+  val varDomain: Array[HashMap[String, Int]] = {
+    // foreach variable, maps to a Hashmap Value -> int
+    val varDomain = Array.fill(varNames.length) {
+      val h = new HashMap[String, Int]
+      h.put("", 0)
+      h
+    }
+    for (row <- rawDataMatrix) {
+      if (row.length != varNames.length) throw new RuntimeException("Expected rows to be the same length as varNames array. Found: row.length=" + row.length + " varNames.length=" + varNames.length)
+      for (i <- row.indices) {
+        if (!varDomain(i).contains(row(i))) {
+          // this is a new value for variable i
+          varDomain(i).put(row(i), varDomain(i).size)
+        }
+      }
+    }
+    varDomain
+  }
+
+  /*
+   * Replace the original rawDataMatrix where each entry is a string to an integer-only version of the data matrix where each
+   * entry is an index that maps to the original value through varDomain
+   *
+   * For example original:
+   * ["a1","b1"]
+   * ["a2',"b2"]
+   * ["a3',"b1"]
+   * ->
+   * [0,0]
+   * [1,1]
+   * [2,0]
+   *
+   * with varDomain(0) = ["a1" -> 0, "a2" -> 1, "a3" -> 2]
+   * and varDomain(1) = ["b1" -> 0, "b2" -> 1]
+   */
+  val dataMatrix = rawDataMatrix.map(row => row.indices.map(i => varDomain(i).getOrElse(row(i), throw new AssertionError("Logic should guarantee map entry exists"))).toArray)
+
   /**
     * Each different variable is a row. Each data vector is a column.
     */
@@ -22,10 +59,11 @@ class DataSet(val varNames: Array[String], val varDomain: Array[HashMap[String, 
   /**
     * Returns the array index that corresponds to the variable.
     * E.g. if there are two variables ["x","y"], getVarIndex("x") returns 0
+    *
     * @param varName
     * @return
     */
-  def getVarIndex(varName: String) : Option[Int] = {
+  def getVarIndex(varName: String): Option[Int] = {
     mapVarNameToIndex.get(varName)
   }
 }
@@ -40,39 +78,26 @@ object DataSet {
     * var1, var2, var3
     * 'apples',2,1.2
     * 'oranges',4,1.4
+    *
     * @return DataSet
     */
-  def createFromCsvLines(lines: Iterator[String]) : DataSet = {
+  def createFromCsvLines(lines: Iterator[String]): DataSet = {
     var isFirst = true
     var varNames = Array[String]()
-    var varDomain = Array[HashMap[String, Int]]() // foreach variable, maps to a Hashmap Value -> int
-    val dataMatrix = ArrayBuffer[Array[Int]]() // stores data as integer indices
+    val dataMatrix = ArrayBuffer[Array[String]]() // stores data as integer indices
     for (line <- lines) {
-      val values = line.split(",",-1).map(_.trim)
-      if(isFirst) {
+      val values = line.split(",", -1).map(_.trim)
+      if (isFirst) {
         // headers
         varNames = values
-        varDomain = Array.fill(values.length){
-          val h = new HashMap[String,Int]
-          h.put("", 0)
-          h
-        }
         isFirst = false
       } else {
-        if(values.length != varNames.length) {
+        if (values.length != varNames.length) {
           throw new Exception("Length of values " + values.length + " differs from number of variables " + varNames.length)
         }
-        val processedRow = values.indices.map( i => {
-          if(!varDomain(i).contains(values(i))) {
-            // this is a new value for variable i
-            varDomain(i).put(values(i), varDomain(i).size)
-          }
-          varDomain(i).getOrElse(values(i), 0); // replace values by their indices
-        }).toArray
-
-        dataMatrix.append(processedRow)
+        dataMatrix.append(values)
       }
     }
-    new DataSet(varNames, varDomain, dataMatrix)
+    new DataSet(varNames, dataMatrix)
   }
 }
