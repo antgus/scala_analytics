@@ -8,7 +8,7 @@ import play.api.routing.sird._
 
 import collection.mutable.{ArrayBuffer, HashMap}
 import play.Environment
-import services.{DataSet, MutualInformation, ProjectDataSet}
+import services.{DataSet, MutualInformation}
 
 import scala.concurrent.Future
 
@@ -23,9 +23,6 @@ class AppLoader extends ApplicationLoader {
       dataset
     }
 
-    /**
-      * Simple & fairly self-explanatory router
-      */
     val router = Router.from {
       case GET(p"/dependencies" ? q_o"variable=$queryVar") => Action.async {
         val chosenVarName = queryVar.getOrElse("")
