@@ -52,17 +52,18 @@ class MutualInformationTest extends PlaySpec {
     }
     "correct when calculating pairwise values" in {
       val data = DataSet.createFromCsvLines(Array(
-        "x1,x2,x3",
-        "1,0,1",
-        "1,1,1",
-        "0,0,0",
-        "0,1,0"
+        "x1,x2,x3,x4",
+        "1,0,1,0",
+        "1,1,1,1",
+        "0,0,0,1",
+        "0,1,0,1"
       ).iterator)
 
       val result = MutualInformation.computePairwise(data, "x1")
-      result.keys must contain only ("x2","x3")
+      result.keys must contain only ("x2","x3","x4")
       assert(epsilonEquals(result.getOrElse("x2", -1), 0))
       assert(epsilonEquals(result.getOrElse("x3", -1), 1))
+      assert(epsilonEquals(result.getOrElse("x4", -1), 0.311278124459)) // value obtained by manual calculation
     }
   }
 }
