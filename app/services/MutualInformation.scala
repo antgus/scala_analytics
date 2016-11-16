@@ -25,29 +25,27 @@ object MutualInformation {
     val xRow = transposedMatrix(x)
     val yRow = transposedMatrix(y)
 
+    val xCounter = Array.fill[Int](dataset.varDomain(x).size)(0)
+    val yCounter = Array.fill[Int](dataset.varDomain(y).size)(0)
     // Note: the following pairwiseCounter is quadratic in the number of unique variable values, i.e. O(|X|*|Y|)
     // where |X| is the number of unique values variable x can take
     // Alternative implementation with hashes for unique pairs would be O(N), where N is the number of rows.
     // Hashes will have slower access but will be faster if |X|*|Y| is >> N
-    val xCounter = Array.fill[Int](dataset.varDomain(x).size)(0)
-    val yCounter = Array.fill[Int](dataset.varDomain(y).size)(0)
     val xyCounter = Array.fill(dataset.varDomain(x).size) {
       Array.fill[Int](dataset.varDomain(y).size)(0)
     }
-    for (i <- xRow.indices) {
-      if (yRow(i) != 0 && xRow(i) != 0) {
-        // only consider rows where both columns are defined
-        xCounter(xRow(i)) += 1
-        yCounter(yRow(i)) += 1
-        xyCounter(xRow(i))(yRow(i)) += 1
-      }
-    }
-    val xSum = xCounter.sum
-    val xProbDist = xCounter.map(x => x.toDouble / xSum)
-    val ySum = yCounter.sum
-    val yProbDist = yCounter.map(x => x.toDouble / ySum)
-    val xySum = xyCounter.map(_.sum).sum
-    val xyProbDist = xyCounter.map(x => x.map(y => y.toDouble / xySum))
+    var numValidRows = 0
+    xRow.indices.filter( (i: Int) => yRow(i) != 0 && xRow(i) != 0).foreach( i => {
+      // only consider rows that have no missing values
+      xCounter(xRow(i)) += 1
+      yCounter(yRow(i)) += 1
+      xyCounter(xRow(i))(yRow(i)) += 1
+      numValidRows += 1
+    })
+    val xProbDist = xCounter.map(x => x.toDouble / numValidRows)
+    val yProbDist = yCounter.map(x => x.toDouble / numValidRows)
+    val xyProbDist = xyCounter.map(x => x.map(y => y.toDouble / numValidRows))
+
     var mutualInformation = 0.0
     for (i <- xyProbDist.indices; j <- xyProbDist(i).indices) {
       // Mutual information = sum over all x,y:  p(x,y) log2(p(x,y) / (p(x)*p(y))
