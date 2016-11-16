@@ -73,6 +73,13 @@ class DataSet(val varNames: Seq[String], val rawDataMatrix: ArrayBuffer[Array[St
 object DataSet {
   val MissingValue = ""
 
+  /**
+    * The first element of the iterator contains the variable names
+    * Each of the following elements contains one data row. All rows should have the same size.
+    * Missing values should be encoded with DataSet.MissingValue.
+    * @param lines
+    * @return
+    */
   def createFromIterator(lines: Iterator[Seq[String]]): DataSet = {
     val varNames = lines.next()
     val dataMatrix = ArrayBuffer[Array[String]]()
