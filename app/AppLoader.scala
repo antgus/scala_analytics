@@ -1,3 +1,6 @@
+import java.io.File
+
+import com.github.tototoshi.csv.CSVReader
 import play.api.ApplicationLoader.Context
 import play.api._
 import play.api.libs.concurrent.Execution.Implicits._
@@ -17,9 +20,9 @@ class AppLoader extends ApplicationLoader {
   def load(context: Context) = new BuiltInComponentsFromContext(context) {
 
     val dataset = { // load dataset only once. Not bothering with try-catch-finally
-      val bufferedSource = scala.io.Source.fromFile(environment.getFile("conf/old_projects_dataset.csv"))
-      val dataset = DataSet.createFromCsvLines(bufferedSource.getLines())
-      bufferedSource.close
+      val reader = CSVReader.open(new File("conf/old_projects_dataset.csv"))
+      val dataset = DataSet.createFromIterator(reader.iterator)
+      reader.close()
       dataset
     }
 

@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
   jdbc,
   cache,
   ws,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+  "com.github.tototoshi" %% "scala-csv" % "1.3.4"
 )
 

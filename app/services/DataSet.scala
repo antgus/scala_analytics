@@ -13,7 +13,7 @@ import scala.collection.mutable.{ArrayBuffer, HashMap}
   * @param varNames
   * @param rawDataMatrix
   */
-class DataSet(val varNames: Array[String], val rawDataMatrix: ArrayBuffer[Array[String]]) {
+class DataSet(val varNames: Seq[String], val rawDataMatrix: ArrayBuffer[Array[String]]) {
   private val mapVarNameToIndex = varNames.zipWithIndex.toMap
 
   val varDomain: Array[HashMap[String, Int]] = {
@@ -72,6 +72,15 @@ class DataSet(val varNames: Array[String], val rawDataMatrix: ArrayBuffer[Array[
 
 object DataSet {
   val MissingValue = ""
+
+  def createFromIterator(lines: Iterator[Seq[String]]): DataSet = {
+    val varNames = lines.next()
+    val dataMatrix = ArrayBuffer[Array[String]]()
+    for(line <- lines) {
+      dataMatrix.append(line.toArray)
+    }
+    new DataSet(varNames, dataMatrix)
+  }
   /**
     * Expects comma-separated lines
     * The first line has the names of the variables
@@ -87,7 +96,7 @@ object DataSet {
   def createFromCsvLines(lines: Iterator[String]): DataSet = {
     var isFirst = true
     var varNames = Array[String]()
-    val dataMatrix = ArrayBuffer[Array[String]]() // stores data as integer indices
+    val dataMatrix = ArrayBuffer[Array[String]]()
     for (line <- lines) {
       val values = line.split(",", -1).map(_.trim)
       if (isFirst) {
