@@ -1,9 +1,5 @@
 package services
 
-import play.api.mvc.Results._
-
-import scala.collection.mutable.HashMap
-
 object MutualInformation {
 
   /**
@@ -16,6 +12,13 @@ object MutualInformation {
     * @return
     */
   def computeMi(dataset: DataSet, xName: String, yName: String) : Double = {
+    if(dataset.dataMatrix.isEmpty)
+      0
+    else
+      doComputeMi(dataset, xName, yName)
+  }
+
+  private def doComputeMi(dataset: DataSet, xName: String, yName: String): Double = {
     val transposedMatrix = dataset.transposedDataMatrix
     val x = dataset.getVarIndex(xName).get
     val y = dataset.getVarIndex(yName).get
@@ -24,8 +27,8 @@ object MutualInformation {
 
     // Note: the following pairwiseCounter is quadratic in the number of unique variable values, i.e. O(|X|*|Y|)
     // where |X| is the number of unique values variable x can take
-    // Alternative implementation with hashes for unique pairs would be O(|X| + |Y|). Consider it if dealing with
-    // large scale processing
+    // Alternative implementation with hashes for unique pairs would be O(N), where N is the number of rows.
+    // Hashes will have slower access but will be faster if |X|*|Y| is >> N
     val xCounter = Array.fill[Int](dataset.varDomain(x).size)(0)
     val yCounter = Array.fill[Int](dataset.varDomain(y).size)(0)
     val xyCounter = Array.fill(dataset.varDomain(x).size) {

@@ -33,9 +33,9 @@ class MutualInformationTest extends PlaySpec {
   }
 
   "MutualInformation" should {
-    "be NaN if there is no data" in {
-      //val data = DataSet.createFromCsvLines(Array("x,y").iterator);
-      // TODO
+    "be 0 if there is no data" in {
+      val dataArray = Array("x,y",",")
+      assertComputeMi(dataArray, "x", "y", 0);
     }
     "be zero for data vectors without any variation" in {
       val dataArray = Array(
