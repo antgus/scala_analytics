@@ -7,6 +7,8 @@ import scala.collection.mutable.{ArrayBuffer, HashMap}
   * Each row is a data vector
   * Each column is a variable
   *
+  * Note: A value = DataSet.MissingValue is considered to be a missing value.
+  *
   * @throws RuntimeException if varNames.size != dataMatrix(i).size, for any i
   * @param varNames
   * @param rawDataMatrix
@@ -18,7 +20,7 @@ class DataSet(val varNames: Array[String], val rawDataMatrix: ArrayBuffer[Array[
     // foreach variable, maps to a Hashmap Value -> int
     val varDomain = Array.fill(varNames.length) {
       val h = new HashMap[String, Int]
-      h.put("", 0)
+      h.put(DataSet.MissingValue, 0)
       h
     }
     for (row <- rawDataMatrix) {
@@ -69,6 +71,7 @@ class DataSet(val varNames: Array[String], val rawDataMatrix: ArrayBuffer[Array[
 }
 
 object DataSet {
+  val MissingValue = ""
   /**
     * Expects comma-separated lines
     * The first line has the names of the variables

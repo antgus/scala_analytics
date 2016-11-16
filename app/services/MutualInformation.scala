@@ -64,5 +64,5 @@ object MutualInformation {
       toMap
   }
 
-  private def log2(i: Double): Double = Math.log(i) / Math.log(2)
+  private def log2(x: Double): Double = Math.log(x) / Math.log(2)
 }
