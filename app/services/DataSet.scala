@@ -101,21 +101,17 @@ object DataSet {
     * @return DataSet
     */
   def createFromCsvLines(lines: Iterator[String]): DataSet = {
-    var isFirst = true
-    var varNames = Array[String]()
+    def splitCommas = (s: String) => s.split(",", -1).map(_.trim);
+
     val dataMatrix = ArrayBuffer[Array[String]]()
+    val varNames = splitCommas(lines.next()); // first line has variable names
     for (line <- lines) {
+      // remaining lines have data vectors
       val values = line.split(",", -1).map(_.trim)
-      if (isFirst) {
-        // headers
-        varNames = values
-        isFirst = false
-      } else {
-        if (values.length != varNames.length) {
-          throw new Exception("Length of values " + values.length + " differs from number of variables " + varNames.length)
-        }
-        dataMatrix.append(values)
+      if (values.length != varNames.length) {
+        throw new Exception("Length of values " + values.length + " differs from number of variables " + varNames.length)
       }
+      dataMatrix.append(values)
     }
     new DataSet(varNames, dataMatrix)
   }

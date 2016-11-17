@@ -1,14 +1,7 @@
+package services
+
 import org.scalatestplus.play._
-import org.scalactic.TolerantNumerics
-import services.{DataSet, MutualInformation}
 
-import scala.collection.mutable.{ArrayBuffer, HashMap}
-
-/**
-  * Add your spec here.
-  * You can mock out a whole application including requests, plugins etc.
-  * For more information, consult the wiki.
-  */
 class MutualInformationTest extends PlaySpec {
 
   def epsilonEquals(a : Double, b : Double, epsilon: Double = 0.0001): Boolean = {

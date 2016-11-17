@@ -22,7 +22,7 @@ object MutualInformation {
     val transposedMatrix = dataset.transposedDataMatrix
     val x = dataset.getVarIndex(xName).get
     val y = dataset.getVarIndex(yName).get
-    val xRow = transposedMatrix(x)
+    val xRow = transposedMatrix(x) // a row of the tranposed matrix contains all data for a given variable (across all data vectors)
     val yRow = transposedMatrix(y)
 
     val xCounter = Array.fill[Int](dataset.varDomain(x).size)(0)
@@ -30,7 +30,7 @@ object MutualInformation {
     // Note: the following pairwiseCounter is quadratic in the number of unique variable values, i.e. O(|X|*|Y|)
     // where |X| is the number of unique values variable x can take
     // Alternative implementation with hashes for unique pairs would be O(N), where N is the number of rows.
-    // Hashes will have slower access but will be faster if |X|*|Y| is >> N
+    // Hashes will have slower access but will be faster and use less memory if |X|*|Y| is >> N
     val xyCounter = Array.fill(dataset.varDomain(x).size) {
       Array.fill[Int](dataset.varDomain(y).size)(0)
     }
