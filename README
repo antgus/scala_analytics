@@ -1,3 +1,4 @@
+*This project is just a practice coding exercise*
 
 A simple web service, which provides analytics of software projects. 
 The service parses a property matrix (from CSV) into memory, offers an endpoint that reads a variable name, and provides a list of variables that have a statistical dependency with the variable.
